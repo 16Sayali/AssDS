@@ -1,0 +1,119 @@
+ServerInterface.java
+
+import java.rmi.*;
+
+// This code is defining a Java RMI (Remote Method Invocation) interface called `ServerInterface`. It
+// extends the `Remote` interface, which is required for RMI. The interface declares four methods for
+// performing basic arithmetic operations: `Addition`, `Subtraction`, `Division`, and `Multiplication`.
+// Each method takes two `double` parameters and throws a `RemoteException` if there is a problem with
+// the remote method invocation. This interface will be implemented by a remote server and used by a
+// client to perform arithmetic operations remotely.
+interface ServerInterface extends Remote{
+	public double Addition(double num1, double num2) throws RemoteException;
+	public double Subtraction(double num1, double num2) throws RemoteException;
+	public double Division(double num1, double num2) throws RemoteException;
+	public double Multiplication(double num1, double num2) throws RemoteException;
+}
+-----------------------
+ServerImplementation.java
+
+import java.rmi.*;
+import java.rmi.server.*;
+
+/**
+ * The ServerImplementation class implements the ServerInterface and provides methods for basic
+ * arithmetic operations.
+ */
+public class ServerImplementation extends UnicastRemoteObject implements ServerInterface{
+	
+	public ServerImplementation() throws RemoteException{
+	
+	}
+	
+	public double Addition(double num1, double num2) throws RemoteException{
+		return num1 + num2;
+	}
+	
+	public double Subtraction(double num1, double num2) throws RemoteException{
+		return num1 - num2;
+	}
+	
+	public double Multiplication(double num1, double num2) throws RemoteException{
+		return num1 * num2;
+	}
+	
+	public double Division(double num1, double num2) throws RemoteException{
+		return num1 / num2;
+	}
+} 
+---------------------
+Server.java
+import java.rmi.*;
+
+public class Server{
+	public static void main(String[] args){
+		
+		// This code block is creating an instance of the `ServerImplementation` class and binding it to the
+		// RMI registry with the name "Server". The `Naming.rebind()` method is used to bind the object to
+		// the registry. If successful, the message "Server is Ready....." is printed to the console. The
+		// code is wrapped in a try-catch block to handle any exceptions that may occur during the binding
+		// process.
+		try{
+			ServerImplementation serverImpl = new ServerImplementation();
+			Naming.rebind("Server",serverImpl);
+			System.out.println("Server is Ready.....");
+		}
+		
+		// The `catch` block is used to handle any exceptions that may occur during the execution of the
+		// `try` block. If an exception occurs, the code inside the `catch` block will be executed. In this
+		// case, the code is printing a message to the console indicating that an exception occurred at the
+		// server, along with the error message associated with the exception (`e.getMessage()`). This helps
+		// to identify and diagnose any issues that may arise during the execution of the program.
+		catch(Exception e){
+			System.out.println("Exception occured at Server! "+ e.getMessage());
+		}	
+	}
+}
+----------------------------
+Client.java
+import java.rmi.*;
+import java.util.Scanner;
+
+public class Client{
+	// This is the main method of the `Client` class in a Java program that uses RMI (Remote Method
+	// Invocation) to communicate with a server.
+	public static void main(String[] args){
+		
+		Scanner sc = new Scanner(System.in);
+		
+		try{
+			String serverUrl = "rmi://localhost/Server";
+			ServerInterface serverIntf = (ServerInterface) Naming.lookup(serverUrl);
+			
+			System.out.print("Enter Fisrt Number: ");
+			double num1 = sc.nextDouble();
+			
+			System.out.print("Enter Second Number: ");
+			double num2 = sc.nextDouble();
+			
+			System.out.println("*--------------------------Results----------------------------*");
+			System.out.println("Addition is: " + serverIntf.Addition(num1,num2));
+			System.out.println("Subtraction is: " + serverIntf.Subtraction(num1,num2));
+			System.out.println("Division is: " + serverIntf.Division(num1,num2));
+			System.out.println("Multiplication is: " + serverIntf.Multiplication(num1,num2));
+		}
+		
+		// The `catch` block is used to handle any exceptions that may occur during the execution of the code
+		// in the `try` block. In this case, if an exception occurs, the code inside the `catch` block will
+		// be executed.
+		catch(Exception e){
+			System.out.println("Exception occured at Client! " + e.getMessage());
+		}
+	}
+}
+---------------------------------------
+run
+1. `javac *.java`
+2. `rmiregistry`
+3. `java Server.java`
+4. `java Client.java` 
